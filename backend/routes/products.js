@@ -17,6 +17,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get user's own products (protected)
+router.get('/my-listings', authenticateToken, async (req, res) => {
+  try {
+    const [products] = await db.query(
+      'SELECT p.*, u.username as seller_name, u.profile_picture_url as seller_picture FROM products p LEFT JOIN users u ON p.seller_id = u.id WHERE p.seller_id = ? ORDER BY p.created_at DESC',
+      [req.user.id]
+    );
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching user products:', error);
+    res.status(500).json({ message: 'Error fetching your products' });
+  }
+});
+
 // Get single product
 router.get('/:id', async (req, res) => {
   try {

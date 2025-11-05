@@ -10,6 +10,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,16 +40,17 @@ const Home = () => {
     );
   }
 
-  const filteredProducts = searchQuery.trim()
-    ? products.filter(
-        (product) =>
-          product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          product.category?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : products;
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = !searchQuery.trim() || 
+      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || 
+      product.category?.toLowerCase() === selectedCategory.toLowerCase();
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -63,15 +65,29 @@ const Home = () => {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+          <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for products..."
-                className="flex-1 px-6 py-4 rounded-full border text-lg focus:outline-none focus:ring-4 focus:ring-white/30"
+                className="flex-1 px-6 py-4 rounded-full border text-lg focus:outline-none focus:ring-4 focus:ring-white/30 text-gray-900"
               />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-6 py-4 rounded-full border text-lg focus:outline-none focus:ring-4 focus:ring-white/30 bg-white text-gray-900 font-medium"
+              >
+                <option value="">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Home & Garden">Home & Garden</option>
+                <option value="Sports">Sports</option>
+                <option value="Toys">Toys</option>
+                <option value="Books">Books</option>
+                <option value="Other">Other</option>
+              </select>
               <button
                 type="submit"
                 className="px-8 py-4 text-primary rounded-full font-semibold hover:bg-gray-100 bg-white transition-colors"

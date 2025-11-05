@@ -14,6 +14,8 @@ import CreateProduct from "./pages/CreateProduct";
 import ProductPage from "./pages/ProductPage";
 import Chat from "./pages/Chat";
 import Conversations from "./pages/Conversations";
+import MyListings from "./pages/MyListings";
+import EditProduct from "./pages/EditProduct";
 
 function App() {
   return (
@@ -74,6 +76,26 @@ function App() {
             element={
               <ProtectedRoute>
                 <Chat />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* My Listings route */}
+          <Route
+            path="/my-listings"
+            element={
+              <ProtectedRoute>
+                <MyListings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Edit Product route */}
+          <Route
+            path="/edit-product/:id"
+            element={
+              <ProtectedRoute>
+                <EditProduct />
               </ProtectedRoute>
             }
           />
