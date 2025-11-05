@@ -1,0 +1,379 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import BottomNavbar from '../components/BottomNavbar';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const CATEGORIES = [
+  'Electronics',
+  'Fashion',
+  'Home & Living',
+  'Sports & Outdoors',
+  'Books & Media',
+  'Toys & Games',
+  'Automotive',
+  'Others'
+];
+
+const CONDITIONS = [
+  'Brand New',
+  'Like New',
+  'Lightly Used',
+  'Well Used',
+  'Heavily Used'
+];
+
+const CreateProduct = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
+  const [condition, setCondition] = useState('');
+  const [location, setLocation] = useState('');
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Cleanup blob URL on unmount
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Store coordinates for later use
+          sessionStorage.setItem('latitude', position.coords.latitude);
+          sessionStorage.setItem('longitude', position.coords.longitude);
+        },
+        (error) => {
+          console.log('Location access denied:', error);
+        }
+      );
+    }
+  }, []);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Revoke previous blob URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!title || !price || !category || !condition) {
+      setError('Title, price, category, and condition are required');
+      return;
+    }
+
+    if (parseFloat(price) <= 0) {
+      setError('Price must be greater than 0');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      let imageUrl = null;
+
+      // Upload image if provided
+      if (image) {
+        const formData = new FormData();
+        formData.append('image', image);
+
+        const uploadResponse = await axios.post(
+          `${API_BASE_URL}/api/upload/product`,
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+
+        imageUrl = uploadResponse.data.imageUrl;
+      }
+
+      // Get stored coordinates
+      const latitude = sessionStorage.getItem('latitude');
+      const longitude = sessionStorage.getItem('longitude');
+
+      // Create product
+      await axios.post(
+        `${API_BASE_URL}/api/products`,
+        {
+          title,
+          description,
+          price: parseFloat(price),
+          category,
+          condition,
+          location,
+          latitude: latitude ? parseFloat(latitude) : null,
+          longitude: longitude ? parseFloat(longitude) : null,
+          image_url: imageUrl
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-text">Create New Listing</h1>
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-600 hover:text-text"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Form */}
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-text mb-2">
+                Product Image
+              </label>
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary transition">
+                <div className="space-y-1 text-center">
+                  {imagePreview ? (
+                    <div className="mb-4">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="mx-auto h-48 w-auto rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImage(null);
+                          setImagePreview(null);
+                        }}
+                        className="mt-2 text-sm text-red-600 hover:text-red-700"
+                      >
+                        Remove Image
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <div className="flex text-sm text-gray-600">
+                        <label
+                          htmlFor="file-upload"
+                          className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="file-upload"
+                            name="file-upload"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        PNG, JPG, GIF up to 5MB
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-text mb-2">
+                Title *
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="Enter product title"
+              />
+            </div>
+
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-text mb-2">
+                Category *
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+              >
+                <option value="">Select a category</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Condition */}
+            <div>
+              <label htmlFor="condition" className="block text-sm font-medium text-text mb-2">
+                Condition *
+              </label>
+              <select
+                id="condition"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+              >
+                <option value="">Select condition</option>
+                {CONDITIONS.map((cond) => (
+                  <option key={cond} value={cond}>
+                    {cond}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price */}
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-text mb-2">
+                Price ($) *
+              </label>
+              <input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Location */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-text mb-2">
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="Enter location (e.g., New York, NY)"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Location helps buyers find your product nearby
+              </p>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-text mb-2">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="Describe your product in detail"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary/90 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating Listing...' : 'Create Listing'}
+            </button>
+          </form>
+        </div>
+      </main>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar />
+    </div>
+  );
+};
+
+export default CreateProduct;

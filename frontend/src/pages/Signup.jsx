@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import BottomNavbar from '../components/BottomNavbar';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -40,10 +41,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-600 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-accent to-secondary px-4 pb-20">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Create Account</h1>
+          <h1 className="text-3xl font-bold text-text">Create Account</h1>
           <p className="text-gray-600 mt-2">Join our marketplace today</p>
         </div>
 
@@ -117,7 +118,7 @@ const Signup = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account...' : 'Sign Up'}
           </button>
@@ -126,12 +127,13 @@ const Signup = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+            <Link to="/login" className="text-primary hover:text-primary/80 font-semibold">
               Sign in
             </Link>
           </p>
         </div>
       </div>
+      <BottomNavbar />
     </div>
   );
 };
