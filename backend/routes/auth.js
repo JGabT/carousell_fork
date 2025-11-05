@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/database.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -44,11 +45,30 @@ router.post('/signup', async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: result.insertId, username, email }
+      user: { id: result.insertId, username, email, profile_picture_url: null }
     });
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ message: 'Server error during signup' });
+  }
+});
+
+// Get current user profile
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const [users] = await db.query(
+      'SELECT id, username, email, profile_picture_url FROM users WHERE id = ?',
+      [req.user.id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ user: users[0] });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -88,7 +108,7 @@ router.post('/login', async (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: user.id, username: user.username, email: user.email }
+      user: { id: user.id, username: user.username, email: user.email, profile_picture_url: user.profile_picture_url }
     });
   } catch (error) {
     console.error('Login error:', error);
