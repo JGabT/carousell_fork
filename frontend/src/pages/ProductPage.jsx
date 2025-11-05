@@ -9,7 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth(); // in case you need authentication info
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,6 +28,16 @@ const ProductPage = () => {
         err.response?.data?.message || "Failed to fetch product details"
       );
       setLoading(false);
+    }
+  };
+
+  const handleMessageSeller = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (product && product.seller_id) {
+      navigate(`/chat/${product.seller_id}`, { state: { product } });
     }
   };
 
@@ -125,10 +135,43 @@ const ProductPage = () => {
             </div>
           )}
 
+          {/* Seller Profile Card */}
           {product.seller_name && (
-            <div className="text-sm text-gray-600 mt-2">
-              Seller: <span className="font-medium">{product.seller_name}</span>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Seller Information</h3>
+              <div className="flex items-center gap-3">
+                <img
+                  src={product.seller_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(product.seller_name) + '&background=eb8f0d&color=fff'}
+                  alt={product.seller_name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-medium text-gray-900">{product.seller_name}</p>
+                  <p className="text-xs text-gray-500">Member since {new Date(product.created_at).getFullYear()}</p>
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* Message Seller Button */}
+          {user && product && user.id !== product.seller_id && (
+            <button
+              onClick={handleMessageSeller}
+              className="mt-4 w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-opacity-90 transition flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Message Seller
+            </button>
+          )}
+          {!user && (
+            <button
+              onClick={() => navigate('/login')}
+              className="mt-4 w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-opacity-90 transition"
+            >
+              Login to Message Seller
+            </button>
           )}
         </div>
       </div>

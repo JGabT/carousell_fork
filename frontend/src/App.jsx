@@ -11,7 +11,8 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreateProduct from "./pages/CreateProduct";
-import ProductPage from "./pages/ProductPage"; // <-- import the dynamic page
+import ProductPage from "./pages/ProductPage";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
@@ -52,6 +53,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Chat route */}
+          <Route
+            path="/chat/:userId"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />

@@ -31,6 +31,25 @@ CREATE TABLE IF NOT EXISTS products (
   FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Messages table for chat feature
+CREATE TABLE IF NOT EXISTS messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  product_id INT,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+-- Test user (password is 'password123' hashed with bcrypt)
+INSERT INTO users (username, email, password, profile_picture_url) VALUES
+('testuser', 'testuser@example.com', '$2b$10$kDeQu4.wRiXHl4406gdSkuwtWzJBtrVdDf3T43Ru5GofNRRH2QDAm', 'https://ui-avatars.com/api/?name=Test+User&background=eb8f0d&color=fff')
+ON DUPLICATE KEY UPDATE username=username;
+
 -- Sample products (optional)
 INSERT INTO products (title, description, price, image_url, seller_id) VALUES
 ('Vintage Camera', 'Classic vintage camera in excellent condition', 299.99, 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400', 1),

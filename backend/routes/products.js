@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const [products] = await db.query(
-      'SELECT p.*, u.username as seller_name FROM products p LEFT JOIN users u ON p.seller_id = u.id ORDER BY p.created_at DESC'
+      'SELECT p.*, u.username as seller_name, u.profile_picture_url as seller_picture FROM products p LEFT JOIN users u ON p.seller_id = u.id ORDER BY p.created_at DESC'
     );
     res.json(products);
   } catch (error) {
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const [products] = await db.query(
-      'SELECT p.*, u.username as seller_name FROM products p LEFT JOIN users u ON p.seller_id = u.id WHERE p.id = ?',
+      'SELECT p.*, u.username as seller_name, u.profile_picture_url as seller_picture FROM products p LEFT JOIN users u ON p.seller_id = u.id WHERE p.id = ?',
       [req.params.id]
     );
     
