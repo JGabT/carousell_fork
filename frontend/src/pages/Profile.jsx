@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
@@ -15,12 +17,18 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+    // Cleanup blob URL on unmount
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/auth/me', {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfilePictureUrl(response.data.user.profile_picture_url);
@@ -39,6 +47,10 @@ const Profile = () => {
       if (!file.type.startsWith('image/')) {
         setError('Please select an image file');
         return;
+      }
+      // Revoke previous blob URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
       }
       setProfilePicture(file);
       setImagePreview(URL.createObjectURL(file));
@@ -63,7 +75,7 @@ const Profile = () => {
       formData.append('image', profilePicture);
 
       const response = await axios.post(
-        'http://localhost:5000/api/upload/profile',
+        `${API_BASE_URL}/api/upload/profile`,
         formData,
         {
           headers: {
@@ -114,7 +126,7 @@ const Profile = () => {
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
               {profilePictureUrl ? (
                 <img
-                  src={`http://localhost:5000${profilePictureUrl}`}
+                  src={`${API_BASE_URL}${profilePictureUrl}`}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const CreateProduct = () => {
   const [title, setTitle] = useState('');
@@ -12,6 +14,15 @@ const CreateProduct = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Cleanup blob URL on unmount
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -22,6 +33,10 @@ const CreateProduct = () => {
       if (!file.type.startsWith('image/')) {
         setError('Please select an image file');
         return;
+      }
+      // Revoke previous blob URL to prevent memory leak
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
       }
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
@@ -55,7 +70,7 @@ const CreateProduct = () => {
         formData.append('image', image);
 
         const uploadResponse = await axios.post(
-          'http://localhost:5000/api/upload/product',
+          `${API_BASE_URL}/api/upload/product`,
           formData,
           {
             headers: {
@@ -70,7 +85,7 @@ const CreateProduct = () => {
 
       // Create product
       await axios.post(
-        'http://localhost:5000/api/products',
+        `${API_BASE_URL}/api/products`,
         {
           title,
           description,

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ const Home = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${API_BASE_URL}/api/products`);
       setProducts(response.data);
       setLoading(false);
     } catch {
@@ -99,7 +101,7 @@ const Home = () => {
               <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
                 {product.image_url ? (
                   <img
-                    src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5000${product.image_url}`}
+                    src={product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />
