@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import BottomNavbar from '../components/BottomNavbar';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -102,12 +103,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+            <h1 className="text-2xl font-bold text-text">My Profile</h1>
             <button
               onClick={() => navigate('/')}
               className="text-gray-600 hover:text-gray-900"
@@ -226,7 +227,7 @@ const Profile = () => {
               <button
                 onClick={handleUpload}
                 disabled={!profilePicture || loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {loading ? 'Uploading...' : 'Upload Profile Picture'}
               </button>
@@ -237,13 +238,16 @@ const Profile = () => {
           <div className="border-t mt-6 pt-6">
             <button
               onClick={handleLogout}
-              className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200 font-semibold"
+              className="w-full bg-secondary text-white py-2 px-4 rounded-lg hover:bg-secondary/90 transition duration-200 font-semibold"
             >
               Logout
             </button>
           </div>
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar />
     </div>
   );
 };

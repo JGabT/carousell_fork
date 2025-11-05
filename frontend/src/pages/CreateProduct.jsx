@@ -1,13 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import BottomNavbar from '../components/BottomNavbar';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const CATEGORIES = [
+  'Electronics',
+  'Fashion',
+  'Home & Living',
+  'Sports & Outdoors',
+  'Books & Media',
+  'Toys & Games',
+  'Automotive',
+  'Others'
+];
+
+const CONDITIONS = [
+  'Brand New',
+  'Like New',
+  'Lightly Used',
+  'Well Used',
+  'Heavily Used'
+];
 
 const CreateProduct = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [category, setCategory] = useState('');
+  const [condition, setCondition] = useState('');
+  const [location, setLocation] = useState('');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
@@ -22,6 +45,22 @@ const CreateProduct = () => {
       }
     };
   }, [imagePreview]);
+
+  useEffect(() => {
+    // Get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Store coordinates for later use
+          sessionStorage.setItem('latitude', position.coords.latitude);
+          sessionStorage.setItem('longitude', position.coords.longitude);
+        },
+        (error) => {
+          console.log('Location access denied:', error);
+        }
+      );
+    }
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -48,8 +87,8 @@ const CreateProduct = () => {
     e.preventDefault();
     setError('');
 
-    if (!title || !price) {
-      setError('Title and price are required');
+    if (!title || !price || !category || !condition) {
+      setError('Title, price, category, and condition are required');
       return;
     }
 
@@ -83,6 +122,10 @@ const CreateProduct = () => {
         imageUrl = uploadResponse.data.imageUrl;
       }
 
+      // Get stored coordinates
+      const latitude = sessionStorage.getItem('latitude');
+      const longitude = sessionStorage.getItem('longitude');
+
       // Create product
       await axios.post(
         `${API_BASE_URL}/api/products`,
@@ -90,6 +133,11 @@ const CreateProduct = () => {
           title,
           description,
           price: parseFloat(price),
+          category,
+          condition,
+          location,
+          latitude: latitude ? parseFloat(latitude) : null,
+          longitude: longitude ? parseFloat(longitude) : null,
           image_url: imageUrl
         },
         {
@@ -108,17 +156,17 @@ const CreateProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Create New Product</h1>
+            <h1 className="text-2xl font-bold text-text">Create New Listing</h1>
             <button
               onClick={() => navigate('/')}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-text"
             >
-              Back to Home
+              Cancel
             </button>
           </div>
         </div>
@@ -126,7 +174,7 @@ const CreateProduct = () => {
 
       {/* Form */}
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
@@ -136,10 +184,10 @@ const CreateProduct = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text mb-2">
                 Product Image
               </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition">
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary transition">
                 <div className="space-y-1 text-center">
                   {imagePreview ? (
                     <div className="mb-4">
@@ -178,7 +226,7 @@ const CreateProduct = () => {
                       <div className="flex text-sm text-gray-600">
                         <label
                           htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                          className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none"
                         >
                           <span>Upload a file</span>
                           <input
@@ -203,7 +251,7 @@ const CreateProduct = () => {
 
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="title" className="block text-sm font-medium text-text mb-2">
                 Title *
               </label>
               <input
@@ -212,29 +260,56 @@ const CreateProduct = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                 placeholder="Enter product title"
               />
             </div>
 
-            {/* Description */}
+            {/* Category */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Description
+              <label htmlFor="category" className="block text-sm font-medium text-text mb-2">
+                Category *
               </label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="Enter product description"
-              />
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+              >
+                <option value="">Select a category</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Condition */}
+            <div>
+              <label htmlFor="condition" className="block text-sm font-medium text-text mb-2">
+                Condition *
+              </label>
+              <select
+                id="condition"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+              >
+                <option value="">Select condition</option>
+                {CONDITIONS.map((cond) => (
+                  <option key={cond} value={cond}>
+                    {cond}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Price */}
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="price" className="block text-sm font-medium text-text mb-2">
                 Price ($) *
               </label>
               <input
@@ -245,8 +320,41 @@ const CreateProduct = () => {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                 placeholder="0.00"
+              />
+            </div>
+
+            {/* Location */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-text mb-2">
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="Enter location (e.g., New York, NY)"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Location helps buyers find your product nearby
+              </p>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-text mb-2">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                placeholder="Describe your product in detail"
               />
             </div>
 
@@ -254,13 +362,16 @@ const CreateProduct = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary/90 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating Product...' : 'Create Product'}
+              {loading ? 'Creating Listing...' : 'Create Listing'}
             </button>
           </form>
         </div>
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNavbar />
     </div>
   );
 };

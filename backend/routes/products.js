@@ -39,20 +39,20 @@ router.get('/:id', async (req, res) => {
 // Create product (protected)
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { title, description, price, image_url } = req.body;
+    const { title, description, price, category, condition, location, latitude, longitude, image_url } = req.body;
     
     if (!title || !price) {
       return res.status(400).json({ message: 'Title and price are required' });
     }
 
     const [result] = await db.query(
-      'INSERT INTO products (title, description, price, image_url, seller_id) VALUES (?, ?, ?, ?, ?)',
-      [title, description, price, image_url, req.user.id]
+      'INSERT INTO products (title, description, price, category, `condition`, location, latitude, longitude, image_url, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [title, description, price, category, condition, location, latitude, longitude, image_url, req.user.id]
     );
 
     res.status(201).json({
       message: 'Product created successfully',
-      product: { id: result.insertId, title, description, price, image_url }
+      product: { id: result.insertId, title, description, price, category, condition, location, image_url }
     });
   } catch (error) {
     console.error('Error creating product:', error);
@@ -63,7 +63,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Update product (protected)
 router.put('/:id', authenticateToken, async (req, res) => {
   try {
-    const { title, description, price, image_url } = req.body;
+    const { title, description, price, category, condition, location, latitude, longitude, image_url } = req.body;
     
     // Check if product exists and belongs to user
     const [products] = await db.query(
@@ -76,8 +76,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     await db.query(
-      'UPDATE products SET title = ?, description = ?, price = ?, image_url = ? WHERE id = ?',
-      [title, description, price, image_url, req.params.id]
+      'UPDATE products SET title = ?, description = ?, price = ?, category = ?, `condition` = ?, location = ?, latitude = ?, longitude = ?, image_url = ? WHERE id = ?',
+      [title, description, price, category, condition, location, latitude, longitude, image_url, req.params.id]
     );
 
     res.json({ message: 'Product updated successfully' });
