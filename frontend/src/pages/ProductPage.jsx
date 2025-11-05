@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { generateAvatarUrl } from "../utils/avatarUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -142,7 +143,7 @@ const ProductPage = () => {
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Seller Information</h3>
               <div className="flex items-center gap-3">
                 <img
-                  src={product.seller_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(product.seller_name) + '&background=eb8f0d&color=fff'}
+                  src={generateAvatarUrl(product.seller_name, product.seller_picture)}
                   alt={product.seller_name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

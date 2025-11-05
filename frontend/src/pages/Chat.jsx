@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import io from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
+import { generateAvatarUrl } from "../utils/avatarUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -155,7 +156,7 @@ const Chat = () => {
           {otherUser && (
             <>
               <img
-                src={otherUser.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherUser.username)}&background=eb8f0d&color=fff`}
+                src={generateAvatarUrl(otherUser.username, otherUser.profile_picture_url)}
                 alt={otherUser.username}
                 className="w-10 h-10 rounded-full object-cover"
               />
@@ -207,8 +208,8 @@ const Chat = () => {
                     <img
                       src={
                         isCurrentUser
-                          ? (user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=eb8f0d&color=fff`)
-                          : (message.sender_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(message.sender_name)}&background=eb8f0d&color=fff`)
+                          ? generateAvatarUrl(user.username, user.profile_picture_url)
+                          : generateAvatarUrl(message.sender_name, message.sender_picture)
                       }
                       alt={message.sender_name}
                       className="w-8 h-8 rounded-full object-cover flex-shrink-0"

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import BottomNavbar from "../components/BottomNavbar";
+import { generateAvatarUrl } from "../utils/avatarUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -90,10 +91,7 @@ const Conversations = () => {
               >
                 <div className="relative">
                   <img
-                    src={
-                      conversation.other_user_picture ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(conversation.other_user_name)}&background=eb8f0d&color=fff`
-                    }
+                    src={generateAvatarUrl(conversation.other_user_name, conversation.other_user_picture)}
                     alt={conversation.other_user_name}
                     className="w-14 h-14 rounded-full object-cover"
                   />

@@ -120,9 +120,16 @@ router.post('/messages', authenticateToken, async (req, res) => {
 // Get user info for chat
 router.get('/user/:userId', authenticateToken, async (req, res) => {
   try {
+    const userId = parseInt(req.params.userId, 10);
+    
+    // Validate userId is a valid integer
+    if (isNaN(userId) || userId <= 0) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    
     const [users] = await db.query(
       'SELECT id, username, profile_picture_url FROM users WHERE id = ?',
-      [req.params.userId]
+      [userId]
     );
     
     if (users.length === 0) {
