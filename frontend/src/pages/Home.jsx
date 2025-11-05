@@ -50,16 +50,27 @@ const Home = () => {
             </div>
             <div className="flex items-center space-x-4">
               {user && (
-                <span className="text-gray-700">
-                  Welcome, <span className="font-semibold">{user.username}</span>
-                </span>
+                <>
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="text-gray-700 hover:text-gray-900 font-medium"
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    onClick={() => navigate('/create-product')}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  >
+                    Sell Product
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                  >
+                    Logout
+                  </button>
+                </>
               )}
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Logout
-              </button>
             </div>
           </div>
         </div>
@@ -88,7 +99,7 @@ const Home = () => {
               <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
                 {product.image_url ? (
                   <img
-                    src={product.image_url}
+                    src={product.image_url.startsWith('http') ? product.image_url : `http://localhost:5000${product.image_url}`}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />
