@@ -52,6 +52,7 @@ const Chat = () => {
         socketRef.current.disconnect();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otherUserId, user]);
 
   useEffect(() => {
@@ -102,7 +103,7 @@ const Chat = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/api/chat/messages`,
         {
           receiverId: parseInt(otherUserId),

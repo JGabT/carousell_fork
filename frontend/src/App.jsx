@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import CreateProduct from "./pages/CreateProduct";
 import ProductPage from "./pages/ProductPage";
 import Chat from "./pages/Chat";
+import Conversations from "./pages/Conversations";
 
 function App() {
   return (
@@ -53,6 +54,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Conversations route */}
+          <Route
+            path="/conversations"
+            element={
+              <ProtectedRoute>
+                <Conversations />
               </ProtectedRoute>
             }
           />

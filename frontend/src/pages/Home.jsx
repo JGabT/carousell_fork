@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 import BottomNavbar from "../components/BottomNavbar";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -11,7 +10,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
