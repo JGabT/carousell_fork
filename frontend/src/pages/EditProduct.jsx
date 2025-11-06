@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import BottomNavbar from '../components/BottomNavbar';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import BottomNavbar from "../components/BottomNavbar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const EditProduct = () => {
   const { id } = useParams();
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: '',
-    condition: '',
-    location: '',
-    image_url: ''
+    title: "",
+    description: "",
+    price: "",
+    category: "",
+    condition: "",
+    location: "",
+    image_url: "",
   });
   const [productImage, setProductImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchingProduct, setFetchingProduct] = useState(true);
   const { user } = useAuth();
@@ -27,7 +27,7 @@ const EditProduct = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     fetchProduct();
@@ -36,38 +36,42 @@ const EditProduct = () => {
 
   const fetchProduct = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${API_BASE_URL}/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       const product = response.data;
-      
+
       // Check if user owns this product
       if (product.seller_id !== user.id) {
-        alert('You do not have permission to edit this product');
-        navigate('/my-listings');
+        alert("You do not have permission to edit this product");
+        navigate("/my-listings");
         return;
       }
 
       setFormData({
-        title: product.title || '',
-        description: product.description || '',
-        price: product.price || '',
-        category: product.category || '',
-        condition: product.condition || '',
-        location: product.location || '',
-        image_url: product.image_url || ''
+        title: product.title || "",
+        description: product.description || "",
+        price: product.price || "",
+        category: product.category || "",
+        condition: product.condition || "",
+        location: product.location || "",
+        image_url: product.image_url || "",
       });
-      
+
       if (product.image_url) {
-        setImagePreview(product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`);
+        setImagePreview(
+          product.image_url.startsWith("http")
+            ? product.image_url
+            : `${API_BASE_URL}${product.image_url}`
+        );
       }
-      
+
       setFetchingProduct(false);
     } catch (err) {
-      console.error('Error fetching product:', err);
-      setError('Failed to load product');
+      console.error("Error fetching product:", err);
+      setError("Failed to load product");
       setFetchingProduct(false);
     }
   };
@@ -75,7 +79,7 @@ const EditProduct = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -83,43 +87,43 @@ const EditProduct = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setError('Image size must be less than 5MB');
+        setError("Image size must be less than 5MB");
         return;
       }
       setProductImage(file);
       setImagePreview(URL.createObjectURL(file));
-      setError('');
+      setError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.price) {
-      setError('Title and price are required');
+      setError("Title and price are required");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       let imageUrl = formData.image_url;
 
       // Upload new image if one was selected
       if (productImage) {
         const imageFormData = new FormData();
-        imageFormData.append('image', productImage);
+        imageFormData.append("image", productImage);
 
         const uploadResponse = await axios.post(
           `${API_BASE_URL}/api/upload/product`,
           imageFormData,
           {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
           }
         );
         imageUrl = uploadResponse.data.imageUrl;
@@ -130,19 +134,19 @@ const EditProduct = () => {
         `${API_BASE_URL}/api/products/${id}`,
         {
           ...formData,
-          image_url: imageUrl
+          image_url: imageUrl,
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      navigate('/my-listings');
+      navigate("/my-listings");
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update product');
+      setError(err.response?.data?.message || "Failed to update product");
       setLoading(false);
     }
   };
@@ -162,7 +166,7 @@ const EditProduct = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-text">Edit Product</h1>
             <button
-              onClick={() => navigate('/my-listings')}
+              onClick={() => navigate("/my-listings")}
               className="text-gray-600 hover:text-gray-900"
             >
               Cancel
@@ -172,7 +176,10 @@ const EditProduct = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-md p-6"
+        >
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
@@ -212,7 +219,7 @@ const EditProduct = () => {
                 Price *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-500">$</span>
+                <span className="absolute left-3 top-2 text-gray-500">₱</span>
                 <input
                   type="number"
                   name="price"
@@ -304,7 +311,7 @@ const EditProduct = () => {
           <div className="mt-6 flex gap-3">
             <button
               type="button"
-              onClick={() => navigate('/my-listings')}
+              onClick={() => navigate("/my-listings")}
               className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
             >
               Cancel
@@ -314,7 +321,7 @@ const EditProduct = () => {
               disabled={loading}
               className="flex-1 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-opacity-90 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'Updating...' : 'Update Product'}
+              {loading ? "Updating..." : "Update Product"}
             </button>
           </div>
         </form>

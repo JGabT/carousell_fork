@@ -146,7 +146,7 @@ const Home = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-2xl font-bold text-primary">
-                    ${parseFloat(product.price).toFixed(2)}
+                    ₱{parseFloat(product.price).toFixed(2)}
                   </span>
                   {product.condition && (
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">

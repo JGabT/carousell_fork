@@ -15,7 +15,7 @@ const MyListings = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     fetchMyProducts();
@@ -24,36 +24,36 @@ const MyListings = () => {
 
   const fetchMyProducts = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${API_BASE_URL}/api/products`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       // Filter to only show products belonging to the current user
-      const myProducts = response.data.filter(p => p.seller_id === user.id);
+      const myProducts = response.data.filter((p) => p.seller_id === user.id);
       setProducts(myProducts);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error("Error fetching products:", err);
       setError("Failed to load your listings");
       setLoading(false);
     }
   };
 
   const handleDelete = async (productId) => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) {
+    if (!window.confirm("Are you sure you want to delete this listing?")) {
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.delete(`${API_BASE_URL}/api/products/${productId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       // Remove from local state
-      setProducts(products.filter(p => p.id !== productId));
+      setProducts(products.filter((p) => p.id !== productId));
     } catch (err) {
-      console.error('Error deleting product:', err);
-      alert('Failed to delete product');
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product");
     }
   };
 
@@ -102,9 +102,11 @@ const MyListings = () => {
                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
               />
             </svg>
-            <p className="text-lg text-gray-600 mb-4">You haven't listed any products yet</p>
+            <p className="text-lg text-gray-600 mb-4">
+              You haven't listed any products yet
+            </p>
             <button
-              onClick={() => navigate('/create-product')}
+              onClick={() => navigate("/create-product")}
               className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-opacity-90 transition"
             >
               Create Your First Listing
@@ -146,7 +148,7 @@ const MyListings = () => {
                   </p>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xl font-bold text-primary">
-                      ${parseFloat(product.price).toFixed(2)}
+                      ₱{parseFloat(product.price).toFixed(2)}
                     </span>
                     {product.condition && (
                       <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
@@ -154,7 +156,7 @@ const MyListings = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200">
                     <button

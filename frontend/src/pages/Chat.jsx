@@ -201,7 +201,7 @@ const Chat = () => {
                 {product.title}
               </p>
               <p className="text-sm text-primary font-semibold">
-                ${parseFloat(product.price).toFixed(2)}
+                ₱{parseFloat(product.price).toFixed(2)}
               </p>
             </div>
           </div>

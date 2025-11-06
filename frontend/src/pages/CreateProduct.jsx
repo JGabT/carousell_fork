@@ -1,39 +1,39 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import BottomNavbar from '../components/BottomNavbar';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import BottomNavbar from "../components/BottomNavbar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CATEGORIES = [
-  'Electronics',
-  'Fashion',
-  'Home & Living',
-  'Sports & Outdoors',
-  'Books & Media',
-  'Toys & Games',
-  'Automotive',
-  'Others'
+  "Electronics",
+  "Fashion",
+  "Home & Living",
+  "Sports & Outdoors",
+  "Books & Media",
+  "Toys & Games",
+  "Automotive",
+  "Others",
 ];
 
 const CONDITIONS = [
-  'Brand New',
-  'Like New',
-  'Lightly Used',
-  'Well Used',
-  'Heavily Used'
+  "Brand New",
+  "Like New",
+  "Lightly Used",
+  "Well Used",
+  "Heavily Used",
 ];
 
 const CreateProduct = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('');
-  const [condition, setCondition] = useState('');
-  const [location, setLocation] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [location, setLocation] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -52,11 +52,11 @@ const CreateProduct = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // Store coordinates for later use
-          sessionStorage.setItem('latitude', position.coords.latitude);
-          sessionStorage.setItem('longitude', position.coords.longitude);
+          sessionStorage.setItem("latitude", position.coords.latitude);
+          sessionStorage.setItem("longitude", position.coords.longitude);
         },
         (error) => {
-          console.log('Location access denied:', error);
+          console.log("Location access denied:", error);
         }
       );
     }
@@ -66,11 +66,11 @@ const CreateProduct = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        setError('Image size must be less than 5MB');
+        setError("Image size must be less than 5MB");
         return;
       }
-      if (!file.type.startsWith('image/')) {
-        setError('Please select an image file');
+      if (!file.type.startsWith("image/")) {
+        setError("Please select an image file");
         return;
       }
       // Revoke previous blob URL to prevent memory leak
@@ -79,43 +79,43 @@ const CreateProduct = () => {
       }
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
-      setError('');
+      setError("");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!title || !price || !category || !condition) {
-      setError('Title, price, category, and condition are required');
+      setError("Title, price, category, and condition are required");
       return;
     }
 
     if (parseFloat(price) <= 0) {
-      setError('Price must be greater than 0');
+      setError("Price must be greater than 0");
       return;
     }
 
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       let imageUrl = null;
 
       // Upload image if provided
       if (image) {
         const formData = new FormData();
-        formData.append('image', image);
+        formData.append("image", image);
 
         const uploadResponse = await axios.post(
           `${API_BASE_URL}/api/upload/product`,
           formData,
           {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
           }
         );
 
@@ -123,8 +123,8 @@ const CreateProduct = () => {
       }
 
       // Get stored coordinates
-      const latitude = sessionStorage.getItem('latitude');
-      const longitude = sessionStorage.getItem('longitude');
+      const latitude = sessionStorage.getItem("latitude");
+      const longitude = sessionStorage.getItem("longitude");
 
       // Create product
       await axios.post(
@@ -138,18 +138,18 @@ const CreateProduct = () => {
           location,
           latitude: latitude ? parseFloat(latitude) : null,
           longitude: longitude ? parseFloat(longitude) : null,
-          image_url: imageUrl
+          image_url: imageUrl,
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      navigate('/');
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create product');
+      setError(err.response?.data?.message || "Failed to create product");
     } finally {
       setLoading(false);
     }
@@ -163,7 +163,7 @@ const CreateProduct = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-text">Create New Listing</h1>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="text-gray-600 hover:text-text"
             >
               Cancel
@@ -182,12 +182,35 @@ const CreateProduct = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Image Upload */}
+            {/* Image Upload with Drag & Drop */}
             <div>
               <label className="block text-sm font-medium text-text mb-2">
                 Product Image
               </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary transition">
+              <div
+                className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg transition ${
+                  imagePreview ? "" : "hover:border-primary"
+                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.currentTarget.classList.add("border-primary");
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.currentTarget.classList.remove("border-primary");
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.currentTarget.classList.remove("border-primary");
+                  const file = e.dataTransfer.files[0];
+                  if (file) {
+                    handleImageChange({ target: { files: [file] } });
+                  }
+                }}
+              >
                 <div className="space-y-1 text-center">
                   {imagePreview ? (
                     <div className="mb-4">
@@ -248,10 +271,11 @@ const CreateProduct = () => {
                 </div>
               </div>
             </div>
-
-            {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-text mb-2">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-text mb-2"
+              >
                 Title *
               </label>
               <input
@@ -267,7 +291,10 @@ const CreateProduct = () => {
 
             {/* Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-text mb-2">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-text mb-2"
+              >
                 Category *
               </label>
               <select
@@ -288,7 +315,10 @@ const CreateProduct = () => {
 
             {/* Condition */}
             <div>
-              <label htmlFor="condition" className="block text-sm font-medium text-text mb-2">
+              <label
+                htmlFor="condition"
+                className="block text-sm font-medium text-text mb-2"
+              >
                 Condition *
               </label>
               <select
@@ -309,8 +339,11 @@ const CreateProduct = () => {
 
             {/* Price */}
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-text mb-2">
-                Price ($) *
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-text mb-2"
+              >
+                Price (₱) *
               </label>
               <input
                 id="price"
@@ -327,7 +360,10 @@ const CreateProduct = () => {
 
             {/* Location */}
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-text mb-2">
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-text mb-2"
+              >
                 Location
               </label>
               <input
@@ -336,7 +372,7 @@ const CreateProduct = () => {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-                placeholder="Enter location (e.g., New York, NY)"
+                placeholder="Enter location (e.g., Manila, BGC)"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Location helps buyers find your product nearby
@@ -345,7 +381,10 @@ const CreateProduct = () => {
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-text mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-text mb-2"
+              >
                 Description
               </label>
               <textarea
@@ -364,7 +403,7 @@ const CreateProduct = () => {
               disabled={loading}
               className="w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary/90 transition duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating Listing...' : 'Create Listing'}
+              {loading ? "Creating Listing..." : "Create Listing"}
             </button>
           </form>
         </div>

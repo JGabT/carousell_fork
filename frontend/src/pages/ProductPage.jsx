@@ -103,7 +103,7 @@ const ProductPage = () => {
           </p>
 
           <div className="text-2xl font-bold text-primary">
-            ${parseFloat(product.price).toFixed(2)}
+            ₱{parseFloat(product.price).toFixed(2)}
           </div>
 
           {product.condition && (
