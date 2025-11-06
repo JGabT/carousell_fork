@@ -23,23 +23,23 @@ const Chat = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     // Initialize socket connection
     socketRef.current = io(API_BASE_URL, {
-      transports: ['websocket', 'polling']
+      transports: ["websocket", "polling"],
     });
 
-    const chatId = [user.id, parseInt(otherUserId)].sort().join('-');
-    socketRef.current.emit('join_chat', chatId);
+    const chatId = [user.id, parseInt(otherUserId)].sort().join("-");
+    socketRef.current.emit("join_chat", chatId);
 
     // Listen for incoming messages
-    socketRef.current.on('receive_message', (message) => {
+    socketRef.current.on("receive_message", (message) => {
       setMessages((prevMessages) => {
         // Check if message already exists to avoid duplicates
-        const exists = prevMessages.some(m => m.id === message.id);
+        const exists = prevMessages.some((m) => m.id === message.id);
         if (exists) return prevMessages;
         return [...prevMessages, message];
       });
@@ -66,34 +66,34 @@ const Chat = () => {
 
   const fetchOtherUser = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         `${API_BASE_URL}/api/chat/user/${otherUserId}`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setOtherUser(response.data);
     } catch (err) {
-      console.error('Error fetching user:', err);
-      setError('Failed to load user information');
+      console.error("Error fetching user:", err);
+      setError("Failed to load user information");
     }
   };
 
   const fetchMessages = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         `${API_BASE_URL}/api/chat/messages/${otherUserId}`,
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setMessages(response.data);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching messages:', err);
-      setError('Failed to load messages');
+      console.error("Error fetching messages:", err);
+      setError("Failed to load messages");
       setLoading(false);
     }
   };
@@ -103,24 +103,24 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.post(
         `${API_BASE_URL}/api/chat/messages`,
         {
           receiverId: parseInt(otherUserId),
           message: newMessage,
-          productId: product?.id || null
+          productId: product?.id || null,
         },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       // Message will be added via socket event
       setNewMessage("");
     } catch (err) {
-      console.error('Error sending message:', err);
-      alert('Failed to send message');
+      console.error("Error sending message:", err);
+      alert("Failed to send message");
     }
   };
 
@@ -149,19 +149,34 @@ const Chat = () => {
             onClick={() => navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-full transition"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
           {otherUser && (
             <>
               <img
-                src={generateAvatarUrl(otherUser.username, otherUser.profile_picture_url)}
+                src={generateAvatarUrl(
+                  otherUser.username,
+                  otherUser.profile_picture_url
+                )}
                 alt={otherUser.username}
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div>
-                <h2 className="font-semibold text-gray-900">{otherUser.username}</h2>
+                <h2 className="font-semibold text-gray-900">
+                  {otherUser.username}
+                </h2>
               </div>
             </>
           )}
@@ -182,8 +197,12 @@ const Chat = () => {
               className="w-12 h-12 object-cover rounded"
             />
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">{product.title}</p>
-              <p className="text-sm text-primary font-semibold">${parseFloat(product.price).toFixed(2)}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {product.title}
+              </p>
+              <p className="text-sm text-primary font-semibold">
+                ${parseFloat(product.price).toFixed(2)}
+              </p>
             </div>
           </div>
         </div>
@@ -202,14 +221,26 @@ const Chat = () => {
               return (
                 <div
                   key={message.id}
-                  className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${
+                    isCurrentUser ? "justify-end" : "justify-start"
+                  }`}
                 >
-                  <div className={`flex gap-2 max-w-[70%] ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div
+                    className={`flex gap-2 max-w-[70%] ${
+                      isCurrentUser ? "flex-row-reverse" : "flex-row"
+                    }`}
+                  >
                     <img
                       src={
                         isCurrentUser
-                          ? generateAvatarUrl(user.username, user.profile_picture_url)
-                          : generateAvatarUrl(message.sender_name, message.sender_picture)
+                          ? generateAvatarUrl(
+                              user.username,
+                              user.profile_picture_url
+                            )
+                          : generateAvatarUrl(
+                              message.sender_name,
+                              message.sender_picture
+                            )
                       }
                       alt={message.sender_name}
                       className="w-8 h-8 rounded-full object-cover flex-shrink-0"
@@ -218,14 +249,21 @@ const Chat = () => {
                       <div
                         className={`px-4 py-2 rounded-2xl ${
                           isCurrentUser
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-100 text-gray-900'
+                            ? "bg-primary text-white"
+                            : "bg-gray-100 text-gray-900"
                         }`}
                       >
                         <p className="text-sm break-words">{message.message}</p>
                       </div>
-                      <p className={`text-xs text-gray-500 mt-1 ${isCurrentUser ? 'text-right' : 'text-left'}`}>
-                        {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <p
+                        className={`text-xs text-gray-500 mt-1 ${
+                          isCurrentUser ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {new Date(message.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>

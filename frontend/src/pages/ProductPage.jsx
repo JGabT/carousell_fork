@@ -35,7 +35,7 @@ const ProductPage = () => {
 
   const handleMessageSeller = () => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     if (product && product.seller_id) {
@@ -140,16 +140,26 @@ const ProductPage = () => {
           {/* Seller Profile Card */}
           {product.seller_name && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Seller Information</h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                Seller Information
+              </h3>
               <div className="flex items-center gap-3">
                 <img
-                  src={generateAvatarUrl(product.seller_name, product.seller_picture)}
+                  src={
+                    product.image_url.startsWith("http")
+                      ? product.seller_picture
+                      : `${API_BASE_URL}${product.seller_picture}`
+                  }
                   alt={product.seller_name}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-medium text-gray-900">{product.seller_name}</p>
-                  <p className="text-xs text-gray-500">Member since {new Date(product.created_at).getFullYear()}</p>
+                  <p className="font-medium text-gray-900">
+                    {product.seller_name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Member since {new Date(product.created_at).getFullYear()}
+                  </p>
                 </div>
               </div>
             </div>
@@ -161,15 +171,25 @@ const ProductPage = () => {
               onClick={handleMessageSeller}
               className="mt-4 w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-opacity-90 transition flex items-center justify-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
               </svg>
               Message Seller
             </button>
           )}
           {!user && (
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="mt-4 w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-opacity-90 transition"
             >
               Login to Message Seller
