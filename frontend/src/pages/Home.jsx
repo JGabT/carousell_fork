@@ -41,14 +41,16 @@ const Home = () => {
   }
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = !searchQuery.trim() || 
+    const matchesSearch =
+      !searchQuery.trim() ||
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = !selectedCategory || 
+
+    const matchesCategory =
+      !selectedCategory ||
       product.category?.toLowerCase() === selectedCategory.toLowerCase();
-    
+
     return matchesSearch && matchesCategory;
   });
 
@@ -58,7 +60,7 @@ const Home = () => {
       <div className="bg-linear-to-r from-[#7e7e7e] to-[#460000] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Carousell
+            Parasell
           </h1>
           <p className="text-xl md:text-2xl mb-8">
             The Marketplace for Everything
